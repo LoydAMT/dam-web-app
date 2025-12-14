@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dam Control</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background: #f0f0f0; }
+        .btn { padding: 20px 40px; font-size: 24px; margin: 20px; cursor: pointer; border: none; border-radius: 8px; color: white; transition: 0.2s; }
+        .btn-on { background-color: #d9534f; }
+        .btn-on:hover { background-color: #c9302c; }
+        .btn-off { background-color: #5cb85c; }
+        .btn-off:hover { background-color: #449d44; }
+        #status { margin-top: 20px; font-size: 18px; color: #333; }
+    </style>
+</head>
+<body>
+
+    <h1>🌊 Smart Dam Control</h1>
+    
+    <button class="btn btn-on" onclick="sendCommand('on')">🚨 OPEN GATE</button>
+    <button class="btn btn-off" onclick="sendCommand('off')">✅ CLOSE GATE</button>
+
+    <div id="status">System Ready</div>
+
+    <script>
+        async function sendCommand(action) {
+            document.getElementById('status').innerText = "Sending...";
+            
+            try {
+                // Talk to our local Node.js bridge
+                const response = await fetch('/command', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: action })
+                });
+                
+                const result = await response.json();
+                
+                if(result.status === 'success') {
+                    document.getElementById('status').innerText = "Command Sent: " + action.toUpperCase();
+                    document.getElementById('status').style.color = "green";
+                } else {
+                    document.getElementById('status').innerText = "Error sending command";
+                    document.getElementById('status').style.color = "red";
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('status').innerText = "Connection Failed. Is server.js running?";
+                document.getElementById('status').style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>
